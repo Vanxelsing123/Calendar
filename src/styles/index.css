@@ -549,11 +549,11 @@ body {
 }
 
 .day-cell.rest-day {
-	background: #e74c3c;
+	background: #505050;
 }
 
 .day-cell.day-off {
-	background: #e74c3c;
+	background: #505050;
 }
 
 .day-cell.vacation {
@@ -575,8 +575,8 @@ body {
 	position: absolute;
 	bottom: 2px;
 	right: 2px;
-	width: 4px;
-	height: 4px;
+	width: 10px;
+	height: 10px;
 	background: #fff;
 	border-radius: 50%;
 }

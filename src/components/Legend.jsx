@@ -10,7 +10,7 @@ export function Legend() {
 				<span>Ночная</span>
 			</div>
 			<div className='legend-item'>
-				<div className='legend-color' style={{ background: '#E74C3C' }}></div>
+				<div className='legend-color' style={{ background: '#505050' }}></div>
 				<span>Выходной</span>
 			</div>
 			<div className='legend-item'>
@@ -20,6 +20,10 @@ export function Legend() {
 			<div className='legend-item'>
 				<div className='legend-color' style={{ background: '#5DADE2' }}></div>
 				<span>Отпуск</span>
+			</div>
+			<div className='legend-item'>
+				<div className='legend-color' style={{ background: '#fff' }}></div>
+				<span>Индикатор Заметки</span>
 			</div>
 		</div>
 	)

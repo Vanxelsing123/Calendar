@@ -4,49 +4,52 @@ import { formatDate, getMonthName } from '../utils/dateUtils'
 export function DayModal({ date, defaultType, override, onSave, onClose }) {
 	const [type, setType] = useState(override?.type || defaultType)
 	const [note, setNote] = useState(override?.note || '')
-	const [showDateRange, setShowDateRange] = useState(false)
-	const [endDateStr, setEndDateStr] = useState('')
+	const [useRange, setUseRange] = useState(false)
+	const [startDateStr, setStartDateStr] = useState(formatDate(date))
+	const [endDateStr, setEndDateStr] = useState(formatDate(date))
 
 	const isRangeType = type === 'vacation' || type === 'sick-leave'
 
 	const handleSave = () => {
-		onSave(formatDate(date), { type, note: note.trim() })
-		onClose()
-	}
+		if (isRangeType && useRange) {
+			// Применяем к диапазону
+			const startDate = new Date(startDateStr)
+			const endDate = new Date(endDateStr)
 
-	const handleRangeApply = () => {
-		if (!endDateStr) {
-			alert('Выберите конечную дату')
-			return
+			if (endDate < startDate) {
+				alert('Конечная дата не может быть раньше начальной')
+				return
+			}
+
+			// Собираем все даты в массив
+			const dates = []
+			const currentDate = new Date(startDate)
+
+			while (currentDate <= endDate) {
+				dates.push(formatDate(new Date(currentDate)))
+				currentDate.setDate(currentDate.getDate() + 1)
+			}
+
+			// Передаем массив дат с флагом isMultiple
+			onSave(dates, { type, note: note.trim() }, true)
+			onClose()
+		} else {
+			// Применяем к одному дню
+			onSave(formatDate(date), { type, note: note.trim() })
+			onClose()
 		}
-
-		const startDate = new Date(date)
-		const endDate = new Date(endDateStr)
-
-		if (endDate < startDate) {
-			alert('Конечная дата должна быть позже начальной')
-			return
-		}
-
-		// Сохраняем диапазон
-		const dates = []
-		const currentDate = new Date(startDate)
-		while (currentDate <= endDate) {
-			dates.push(formatDate(new Date(currentDate)))
-			currentDate.setDate(currentDate.getDate() + 1)
-		}
-
-		// Применяем ко всем датам
-		dates.forEach(dateStr => {
-			onSave(dateStr, { type, note: note.trim() })
-		})
-
-		onClose()
 	}
 
 	const handleReset = () => {
 		onSave(formatDate(date), null)
 		onClose()
+	}
+
+	const handleTypeChange = newType => {
+		setType(newType)
+		if (newType !== 'vacation' && newType !== 'sick-leave') {
+			setUseRange(false)
+		}
 	}
 
 	return (
@@ -58,13 +61,7 @@ export function DayModal({ date, defaultType, override, onSave, onClose }) {
 
 				<div className='modal-field'>
 					<label>Тип дня</label>
-					<select
-						value={type}
-						onChange={e => {
-							setType(e.target.value)
-							setShowDateRange(false)
-						}}
-					>
+					<select value={type} onChange={e => handleTypeChange(e.target.value)}>
 						<option value='day-shift'>День (8:00-20:00)</option>
 						<option value='night-shift'>Ночь (20:00-8:00)</option>
 						<option value='rest-day'>Отсыпной</option>
@@ -76,37 +73,57 @@ export function DayModal({ date, defaultType, override, onSave, onClose }) {
 
 				{isRangeType && (
 					<div className='modal-field'>
-						<label>
+						<label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
 							<input
 								type='checkbox'
-								checked={showDateRange}
-								onChange={e => setShowDateRange(e.target.checked)}
-								style={{ marginRight: '6px' }}
+								checked={useRange}
+								onChange={e => setUseRange(e.target.checked)}
+								style={{ marginRight: '8px', cursor: 'pointer' }}
 							/>
 							Применить к диапазону дат
 						</label>
 					</div>
 				)}
 
-				{showDateRange && (
-					<div className='modal-field'>
-						<label>До какой даты (включительно)</label>
-						<input
-							type='date'
-							value={endDateStr}
-							onChange={e => setEndDateStr(e.target.value)}
-							min={formatDate(date)}
-							style={{
-								width: '100%',
-								background: '#1a252f',
-								border: '1px solid #3d4d5f',
-								borderRadius: '6px',
-								padding: '10px',
-								color: '#fff',
-								fontSize: '14px',
-							}}
-						/>
-					</div>
+				{isRangeType && useRange && (
+					<>
+						<div className='modal-field'>
+							<label>С какой даты</label>
+							<input
+								type='date'
+								value={startDateStr}
+								onChange={e => setStartDateStr(e.target.value)}
+								style={{
+									width: '100%',
+									background: '#1a252f',
+									border: '1px solid #3d4d5f',
+									borderRadius: '6px',
+									padding: '10px',
+									color: '#fff',
+									fontSize: '14px',
+									fontFamily: 'inherit',
+								}}
+							/>
+						</div>
+						<div className='modal-field'>
+							<label>По какую дату (включительно)</label>
+							<input
+								type='date'
+								value={endDateStr}
+								onChange={e => setEndDateStr(e.target.value)}
+								style={{
+									width: '100%',
+									background: '#1a252f',
+									border: '1px solid #3d4d5f',
+									borderRadius: '6px',
+									padding: '10px',
+									color: '#fff',
+									fontSize: '14px',
+									fontFamily: 'inherit',
+								}}
+							/>
+						</div>
+					</>
 				)}
 
 				<div className='modal-field'>
@@ -127,7 +144,7 @@ export function DayModal({ date, defaultType, override, onSave, onClose }) {
 					<button className='btn-secondary' onClick={onClose}>
 						Отмена
 					</button>
-					<button className='btn-primary' onClick={showDateRange ? handleRangeApply : handleSave}>
+					<button className='btn-primary' onClick={handleSave}>
 						Сохранить
 					</button>
 				</div>

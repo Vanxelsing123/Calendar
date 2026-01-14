@@ -104,15 +104,32 @@ export function App() {
 		setModalData({ date, defaultType, override })
 	}
 
-	const handleSaveOverride = (dateStr, data) => {
-		const newOverrides = { ...overrides }
-		if (data) {
-			newOverrides[dateStr] = data
+	const handleSaveOverride = (dateStr, data, isMultiple = false) => {
+		if (isMultiple && Array.isArray(dateStr)) {
+			// Массовое обновление для диапазона
+			setOverrides(prev => {
+				const newOverrides = { ...prev }
+				dateStr.forEach(date => {
+					if (data) {
+						newOverrides[date] = data
+					} else {
+						delete newOverrides[date]
+					}
+				})
+				storage.setOverrides(newOverrides)
+				return newOverrides
+			})
 		} else {
-			delete newOverrides[dateStr]
+			// Одиночное обновление
+			const newOverrides = { ...overrides }
+			if (data) {
+				newOverrides[dateStr] = data
+			} else {
+				delete newOverrides[dateStr]
+			}
+			setOverrides(newOverrides)
+			storage.setOverrides(newOverrides)
 		}
-		setOverrides(newOverrides)
-		storage.setOverrides(newOverrides)
 	}
 
 	const handleReset = () => {
