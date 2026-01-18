@@ -18,7 +18,7 @@ export function MonthBlock({
 }) {
 	const firstDay = new Date(year, month, 1)
 	const lastDay = new Date(year, month + 1, 0)
-	const startWeekday = firstDay.getDay()
+	const startWeekday = (firstDay.getDay() + 6) % 7
 	const daysInMonth = lastDay.getDate()
 
 	const days = []
