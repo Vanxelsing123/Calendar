@@ -3,6 +3,8 @@ import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
+	// localhost резолвится в IPv6 ::1, который на этой машине недоступен
+	server: { host: '127.0.0.1' },
 	plugins: [
 		react(),
 		VitePWA({

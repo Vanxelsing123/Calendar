@@ -160,10 +160,12 @@ export function App() {
 	const viewingStartDate = new Date(configuredStartDate)
 	viewingStartDate.setDate(viewingStartDate.getDate() + shiftOffset)
 
-	// Генерация месяцев
+	// Генерация месяцев: полгода назад и 3 года вперёд
+	const MONTHS_BACK = 6
+	const MONTHS_AHEAD = 36
 	const months = []
 
-	for (let offset = -6; offset <= 6; offset++) {
+	for (let offset = -MONTHS_BACK; offset <= MONTHS_AHEAD; offset++) {
 		const date = new Date(currentYear, currentMonth + offset, 1)
 		months.push({ year: date.getFullYear(), month: date.getMonth() })
 	}

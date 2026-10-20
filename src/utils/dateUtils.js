@@ -44,7 +44,8 @@ export const getWeekdayShort = dayIndex => {
 // Расчет типа смены для конкретной бригады
 export const getShiftType = (date, startDate, startShiftType = 'day-shift') => {
 	const diffTime = date - startDate
-	const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
+	// round, а не floor: при переходе на летнее время разница не кратна суткам
+	const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24))
 
 	// Цикл: день → ночь → отсыпной → выходной
 	const cycle = ['day-shift', 'night-shift', 'rest-day', 'day-off']
